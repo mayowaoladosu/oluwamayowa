@@ -1,0 +1,119 @@
+{
+  "header": {
+    "name": "Oluwamayowa Oladosu",
+    "handle": "@vh_mayor",
+    "profileUrl": {
+      "text": "usenubis.com",
+      "href": "https://usenubis.com"
+    }
+  },
+  "about": {
+    "title": "About",
+    "description": "Founder and software engineer building cloud infrastructure, hosting systems, and web platforms."
+  },
+  "experience": {
+    "title": "Experience",
+    "items": [
+      {
+        "period": "Oct 2024 - Present",
+        "title": "Founder & CEO, Nubis",
+        "url": "https://usenubis.com",
+        "description": "Founded and built Nubis, a cloud infrastructure platform focused on simpler deployment, scaling, billing, and project management for businesses."
+      },
+      {
+        "period": "Jul 2024 - Present",
+        "title": "Web Developer & Head of Operations, EBIHOST",
+        "url": "https://ebihost.com",
+        "description": "Built and configured the hosting stack from scratch, including VPS servers, cPanel, WHM, and WHMCS, while leading operations and customer support."
+      },
+      {
+        "period": "Jan 2024 - Sep 2024",
+        "title": "Founder & Co-Founder, Servafri",
+        "description": "Implemented a paperless booking system and used product and user data to guide marketing decisions and improve app engagement."
+      },
+      {
+        "period": "Mar 2023 - Jan 2024",
+        "title": "Founder & CEO, Semmat, Inc.",
+        "description": "Led strategy and operations, built web applications, managed client relationships, and designed data pipeline architecture with a small product team."
+      }
+    ]
+  },
+  "projects": {
+    "title": "Projects",
+    "items": [
+      {
+        "status": "Live",
+        "title": "Nubis",
+        "url": "https://usenubis.com",
+        "description": "Cloud infrastructure platform for deployment, scaling, billing, and infrastructure management."
+      },
+      {
+        "status": "Live",
+        "title": "Nubis Console",
+        "url": "https://console.usenubis.com",
+        "description": "User dashboard for managing cloud resources, subscriptions, teams, and projects."
+      },
+      {
+        "status": "Live",
+        "title": "Yorlect",
+        "url": "https://yorlect.org",
+        "description": "Public-facing website build and deployment listed in selected work."
+      },
+      {
+        "status": "Live",
+        "title": "CEEDR",
+        "url": "https://ceedr.com.ng",
+        "description": "Website implementation and deployment for an external organization."
+      },
+      {
+        "status": "Live",
+        "title": "LAND v2",
+        "url": "https://landv2.vercel.app",
+        "description": "Landing page build and deployment for a live web project."
+      },
+      {
+        "status": "Live",
+        "title": "EBIHOST",
+        "url": "https://ebihost.com",
+        "description": "Hosting company website aligned with infrastructure and operations work."
+      },
+      {
+        "status": "Live",
+        "title": "EBIHOST Client Area",
+        "url": "https://my.ebihost.com",
+        "description": "Client billing and hosting portal supporting account and service management."
+      },
+      {
+        "status": "Live",
+        "title": "Career",
+        "url": "https://career-swart-omega.vercel.app",
+        "description": "Career-focused website deployment included in selected work."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact",
+    "items": [
+      {
+        "label": "Twitter/X",
+        "text": "vh_mayor",
+        "url": "https://x.com/vh_mayor"
+      },
+      {
+        "label": "GitHub",
+        "text": "mayowaoladosu",
+        "url": "https://github.com/mayowaoladosu"
+      },
+      {
+        "label": "Email",
+        "text": "mayor@usenubis.com",
+        "url": "mailto:mayor@usenubis.com"
+      },
+      {
+        "label": "Phone",
+        "text": "+2349053660593",
+        "url": "tel:+2349053660593"
+      }
+    ]
+  }
+}
