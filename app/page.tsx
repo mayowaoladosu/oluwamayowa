@@ -16,6 +16,15 @@ export default function ProfilePage() {
             {profileData.header.profileUrl.text}
             <ArrowUpRight className="h-3 w-3" />
           </a>
+          <div className="mt-4">
+            <iframe
+              src="https://github.com/sponsors/mayowaoladosu/button"
+              title="Sponsor mayowaoladosu"
+              height={32}
+              width={114}
+              style={{ border: 0, borderRadius: "6px" }}
+            />
+          </div>
         </header>
 
         {/* About Section */}
