@@ -9,6 +9,7 @@ type NowPlayingData = {
   artist?: string
   songUrl?: string
   albumArtUrl?: string | null
+  lyrics?: string | null
 }
 
 export function NowPlaying() {
@@ -16,10 +17,17 @@ export function NowPlaying() {
 
   useEffect(() => {
     let isMounted = true
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    let controller: AbortController | null = null
 
     const getNowPlaying = async () => {
       try {
-        const response = await fetch("/api/spotify/now-playing", { cache: "no-store" })
+        controller?.abort()
+        controller = new AbortController()
+        const response = await fetch("/api/spotify/now-playing", {
+          cache: "no-store",
+          signal: controller.signal,
+        })
         const data = (await response.json()) as NowPlayingData
         if (isMounted) {
           setTrack(data)
@@ -28,15 +36,21 @@ export function NowPlaying() {
         if (isMounted) {
           setTrack({ isPlaying: false })
         }
+      } finally {
+        if (isMounted) {
+          timeoutId = setTimeout(getNowPlaying, 3000)
+        }
       }
     }
 
     getNowPlaying()
-    const interval = setInterval(getNowPlaying, 3000)
 
     return () => {
+      controller?.abort()
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
       isMounted = false
-      clearInterval(interval)
     }
   }, [])
 
@@ -45,30 +59,43 @@ export function NowPlaying() {
       <h2 className="mb-4 text-sm font-normal">Now Playing</h2>
       <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4">
         {track.isPlaying ? (
-          <div className="flex items-center gap-4">
-            {track.albumArtUrl ? (
-              <Image
-                src={track.albumArtUrl}
-                alt={`${track.title} album art`}
-                width={56}
-                height={56}
-                className="h-14 w-14 rounded-md object-cover"
-                unoptimized
-              />
-            ) : null}
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{track.title}</p>
-              <p className="truncate text-sm text-neutral-400">{track.artist}</p>
-              {track.songUrl ? (
-                <a
-                  href={track.songUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-1 inline-block text-xs text-green-400 hover:underline"
-                >
-                  Listen on Spotify
-                </a>
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              {track.albumArtUrl ? (
+                <Image
+                  src={track.albumArtUrl}
+                  alt={`${track.title} album art`}
+                  width={56}
+                  height={56}
+                  className="h-14 w-14 rounded-md object-cover"
+                  unoptimized
+                />
               ) : null}
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{track.title}</p>
+                <p className="truncate text-sm text-neutral-400">{track.artist}</p>
+                {track.songUrl ? (
+                  <a
+                    href={track.songUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block text-xs text-green-400 hover:underline"
+                  >
+                    Listen on Spotify
+                  </a>
+                ) : null}
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-1 text-xs uppercase tracking-wide text-neutral-500">Lyrics</p>
+              {track.lyrics ? (
+                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap rounded-md bg-black/40 p-2 text-xs text-neutral-300">
+                  {track.lyrics}
+                </pre>
+              ) : (
+                <p className="text-xs text-neutral-500">No lyrics found for this track.</p>
+              )}
             </div>
           </div>
         ) : (
