@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react"
 import profileData from "@/data/profile.json"
+import { NowPlaying } from "@/components/now-playing"
 
 export default function ProfilePage() {
   return (
@@ -32,6 +33,8 @@ export default function ProfilePage() {
           <h2 className="mb-4 text-sm font-normal">{profileData.about.title}</h2>
           <p className="text-sm text-neutral-400">{profileData.about.description}</p>
         </section>
+
+        <NowPlaying />
 
         {/* Experience Section */}
         <section className="mb-16">
