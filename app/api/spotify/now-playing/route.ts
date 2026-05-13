@@ -4,11 +4,15 @@ const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token"
 const NOW_PLAYING_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing"
 const LYRICS_ENDPOINT = "https://lrclib.net/api/get"
 
+const lyricsCache = new Map<string, { plainLyrics: string | null; syncedLyrics: string | null; expires: number }>()
+
 type SpotifyNowPlaying = {
   is_playing: boolean
   currently_playing_type: string
+  progress_ms: number
   item: {
     name: string
+    duration_ms: number
     external_urls: { spotify: string }
     artists: Array<{ name: string }>
     album: { images: Array<{ url: string }> }
@@ -64,27 +68,48 @@ async function getAccessToken() {
 }
 
 async function getLyrics(track: string, artist: string) {
-  const query = new URLSearchParams({
-    track_name: track,
-    artist_name: artist,
-  })
+  const cacheKey = `${track}:${artist}`
+
+  // Check cache for non-expired entry
+  const cached = lyricsCache.get(cacheKey)
+  if (cached && cached.expires > Date.now()) {
+    return { plainLyrics: cached.plainLyrics, syncedLyrics: cached.syncedLyrics }
+  }
+
+  const query = new URLSearchParams({ track_name: track, artist_name: artist })
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 5000)
 
   try {
     const response = await fetch(`${LYRICS_ENDPOINT}?${query.toString()}`, {
-      cache: "no-store",
-      headers: {
-        "User-Agent": "portfolio-now-playing-widget/1.0",
-      },
+      headers: { "User-Agent": "portfolio-now-playing-widget/1.0" },
+      signal: controller.signal,
     })
 
+    clearTimeout(timeoutId)
+
     if (!response.ok) {
-      return null
+      return { plainLyrics: null, syncedLyrics: null }
     }
 
     const data = (await response.json()) as LyricsResponse
-    return data.plainLyrics ?? data.syncedLyrics ?? null
+    const result = {
+      plainLyrics: data.plainLyrics ?? null,
+      syncedLyrics: data.syncedLyrics ?? null,
+    }
+
+    // Cache the result with 1 hour TTL
+    lyricsCache.set(cacheKey, {
+      plainLyrics: result.plainLyrics,
+      syncedLyrics: result.syncedLyrics,
+      expires: Date.now() + 3600_000,
+    })
+
+    return result
   } catch {
-    return null
+    clearTimeout(timeoutId)
+    return { plainLyrics: null, syncedLyrics: null }
   }
 }
 
@@ -132,7 +157,11 @@ export async function GET() {
       artist,
       songUrl: song.item.external_urls.spotify,
       albumArtUrl: song.item.album.images[0]?.url ?? null,
-      lyrics,
+      progressMs: song.progress_ms,
+      durationMs: song.item.duration_ms,
+      plainLyrics: lyrics.plainLyrics,
+      syncedLyrics: lyrics.syncedLyrics,
+      fetchedAt: Date.now(),
     })
   } catch {
     clearTimeout(timeoutId)
