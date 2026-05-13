@@ -9,7 +9,6 @@ type NowPlayingData = {
   artist?: string
   songUrl?: string
   albumArtUrl?: string | null
-  lyrics?: string | null
 }
 
 export function NowPlaying() {
@@ -87,16 +86,6 @@ export function NowPlaying() {
               </div>
             </div>
 
-            <div>
-              <p className="mb-1 text-xs uppercase tracking-wide text-neutral-500">Lyrics</p>
-              {track.lyrics ? (
-                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap rounded-md bg-black/40 p-2 text-xs text-neutral-300">
-                  {track.lyrics}
-                </pre>
-              ) : (
-                <p className="text-xs text-neutral-500">No lyrics found for this track.</p>
-              )}
-            </div>
           </div>
         ) : (
           <p className="text-sm text-neutral-400">Not playing anything on Spotify right now.</p>

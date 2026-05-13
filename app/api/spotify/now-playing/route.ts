@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token"
 const NOW_PLAYING_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing"
-const LYRICS_ENDPOINT = "https://lrclib.net/api/get"
 
 type SpotifyNowPlaying = {
   is_playing: boolean
@@ -15,10 +14,6 @@ type SpotifyNowPlaying = {
   } | null
 }
 
-type LyricsResponse = {
-  plainLyrics?: string
-  syncedLyrics?: string
-}
 
 async function getAccessToken() {
   const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN
@@ -63,31 +58,6 @@ async function getAccessToken() {
   }
 }
 
-async function getLyrics(track: string, artist: string) {
-  const query = new URLSearchParams({
-    track_name: track,
-    artist_name: artist,
-  })
-
-  try {
-    const response = await fetch(`${LYRICS_ENDPOINT}?${query.toString()}`, {
-      cache: "no-store",
-      headers: {
-        "User-Agent": "portfolio-now-playing-widget/1.0",
-      },
-    })
-
-    if (!response.ok) {
-      return null
-    }
-
-    const data = (await response.json()) as LyricsResponse
-    return data.plainLyrics ?? data.syncedLyrics ?? null
-  } catch {
-    return null
-  }
-}
-
 export async function GET() {
   const accessToken = await getAccessToken()
 
@@ -124,7 +94,6 @@ export async function GET() {
     }
 
     const artist = song.item.artists.map((item) => item.name).join(", ")
-    const lyrics = await getLyrics(song.item.name, artist)
 
     return NextResponse.json({
       isPlaying: true,
@@ -132,7 +101,6 @@ export async function GET() {
       artist,
       songUrl: song.item.external_urls.spotify,
       albumArtUrl: song.item.album.images[0]?.url ?? null,
-      lyrics,
     })
   } catch {
     clearTimeout(timeoutId)
