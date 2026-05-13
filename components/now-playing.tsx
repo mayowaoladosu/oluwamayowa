@@ -54,10 +54,17 @@ export function NowPlaying() {
 
   useEffect(() => {
     let isMounted = true
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    let controller: AbortController | null = null
 
     const getNowPlaying = async () => {
       try {
-        const response = await fetch("/api/spotify/now-playing", { cache: "no-store" })
+        controller?.abort()
+        controller = new AbortController()
+        const response = await fetch("/api/spotify/now-playing", {
+          cache: "no-store",
+          signal: controller.signal,
+        })
         const data = (await response.json()) as NowPlayingData
         if (!isMounted) return
         setTrack(data)
@@ -66,15 +73,21 @@ export function NowPlaying() {
         }
       } catch {
         if (isMounted) setTrack({ isPlaying: false })
+      } finally {
+        if (isMounted) {
+          timeoutId = setTimeout(getNowPlaying, 500)
+        }
       }
     }
 
     getNowPlaying()
-    const interval = setInterval(getNowPlaying, 500)
 
     return () => {
       isMounted = false
-      clearInterval(interval)
+      controller?.abort()
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
     }
   }, [])
 
