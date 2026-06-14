@@ -3,8 +3,8 @@
     "name": "Oluwamayowa Oladosu",
     "handle": "@oluwamayowa",
     "profileUrl": {
-      "text": "usenubis.com",
-      "href": "https://usenubis.com"
+      "text": "layerrail.com",
+      "href": "https://layerrail.com"
     }
   },
   "about": {
@@ -15,10 +15,16 @@
     "title": "Experience",
     "items": [
       {
-        "period": "Oct 2024 - Present",
+        "period": "Apr 2026 - Present",
+        "title": "Founder, LayerRail",
+        "url": "https://layerrail.com",
+        "description": "Building LayerRail, an open source cloud computing platform for modern deployment, infrastructure orchestration, and developer workflows."
+      },
+      {
+        "period": "Oct 2024 - Apr 2026",
         "title": "Founder & CEO, Nubis",
         "url": "https://usenubis.com",
-        "description": "Founded and built Nubis, a cloud infrastructure platform focused on simpler deployment, scaling, billing, and project management for businesses."
+        "description": "Founded and built Nubis, a cloud infrastructure platform focused on simpler deployment, scaling, billing, and project management for businesses, before winding it down in April 2026."
       },
       {
         "period": "Jul 2024 - Present",
@@ -42,10 +48,16 @@
     "title": "Projects",
     "items": [
       {
+        "status": "Open Source",
+        "title": "LayerRail",
+        "url": "https://layerrail.com",
+        "description": "Open source cloud computing platform focused on deployment, orchestration, and developer tooling."
+      },
+      {
         "status": "Live",
         "title": "Nubis",
         "url": "https://usenubis.com",
-        "description": "Cloud infrastructure platform for deployment, scaling, billing, and infrastructure management."
+        "description": "Cloud infrastructure platform for deployment, scaling, billing, and infrastructure management (sunset in April 2026)."
       },
       {
         "status": "Live",
@@ -118,8 +130,8 @@
       },
       {
         "label": "Email",
-        "text": "mayor@usenubis.com",
-        "url": "mailto:mayor@usenubis.com"
+        "text": "ceo@layerrail.com",
+        "url": "mailto:ceo@layerrail.com"
       },
       {
         "label": "Phone",
