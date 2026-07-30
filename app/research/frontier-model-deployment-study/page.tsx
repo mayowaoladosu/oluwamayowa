@@ -10,6 +10,8 @@ const PAGE_URL = `${SITE_URL}${PAGE_PATH}`
 const PDF_URL = `${SITE_URL}${PAGE_PATH}/behavior-strength-deployment-readiness.pdf`
 const DOI = "10.5281/zenodo.21707500"
 const DOI_URL = `https://doi.org/${DOI}`
+const ORCID_ID = "0009-0004-0439-7647"
+const ORCID_URL = `https://orcid.org/${ORCID_ID}`
 const RESEARCHGATE_URL =
   "https://www.researchgate.net/publication/411012631_Behavior_Strength_and_Deployment_Readiness_Across_Six_Frontier-Model_Deployments_A_First-Party_Observational_Study_in_Microsoft_Foundry"
 const TITLE =
@@ -20,7 +22,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  authors: [{ name: "Mayowa Oladosu", url: SITE_URL }],
+  authors: [{ name: "Mayowa Oladosu", url: ORCID_URL }],
   creator: "Mayowa Oladosu",
   publisher: "LayerRail, Inc.",
   keywords: [
@@ -117,6 +119,8 @@ const structuredData = {
     "@type": "Person",
     name: "Mayowa Oladosu",
     url: SITE_URL,
+    identifier: ORCID_ID,
+    sameAs: ORCID_URL,
     affiliation: {
       "@type": "Organization",
       name: "LayerRail, Inc.",
@@ -179,7 +183,15 @@ export default function FrontierModelStudyPage() {
 
             <div className="mt-8 flex flex-col gap-4 border-l border-neutral-700 pl-5 text-sm sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-white">Mayowa Oladosu</p>
+                <a
+                  href={ORCID_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-white transition-colors hover:text-neutral-300"
+                >
+                  Mayowa Oladosu
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
                 <p className="mt-1 text-neutral-500">LayerRail, Inc. · July 30, 2026</p>
               </div>
               <a
@@ -205,6 +217,15 @@ export default function FrontierModelStudyPage() {
                 safety and security reasons.
               </p>
               <div className="flex flex-col items-start gap-2 md:items-end">
+                <a
+                  href={ORCID_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-neutral-400 transition-colors hover:text-white"
+                >
+                  ORCID {ORCID_ID}
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
                 <a
                   href={RESEARCHGATE_URL}
                   target="_blank"
