@@ -10,6 +10,8 @@ const PAGE_URL = `${SITE_URL}${PAGE_PATH}`
 const PDF_URL = `${SITE_URL}${PAGE_PATH}/behavior-strength-deployment-readiness.pdf`
 const DOI = "10.5281/zenodo.21707500"
 const DOI_URL = `https://doi.org/${DOI}`
+const RESEARCHGATE_URL =
+  "https://www.researchgate.net/publication/411012631_Behavior_Strength_and_Deployment_Readiness_Across_Six_Frontier-Model_Deployments_A_First-Party_Observational_Study_in_Microsoft_Foundry"
 const TITLE =
   "Behavior Strength and Deployment Readiness Across Six Frontier-Model Deployments: A First-Party Observational Study in Microsoft Foundry"
 const DESCRIPTION =
@@ -97,7 +99,7 @@ const structuredData = {
   inLanguage: "en",
   isAccessibleForFree: true,
   url: PAGE_URL,
-  sameAs: DOI_URL,
+  sameAs: [DOI_URL, RESEARCHGATE_URL],
   identifier: [
     {
       "@type": "PropertyValue",
@@ -203,6 +205,15 @@ export default function FrontierModelStudyPage() {
                 safety and security reasons.
               </p>
               <div className="flex flex-col items-start gap-2 md:items-end">
+                <a
+                  href={RESEARCHGATE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-neutral-400 transition-colors hover:text-white"
+                >
+                  View on ResearchGate
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
                 <a
                   href="https://github.com/Layerrail/frontier-model-study-2026-07"
                   target="_blank"
