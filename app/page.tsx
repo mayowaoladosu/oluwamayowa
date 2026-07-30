@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react"
+import Link from "next/link"
 import profileData from "@/data/profile.json"
 import { NowPlaying } from "@/components/now-playing"
 
@@ -35,6 +36,54 @@ export default function ProfilePage() {
         </section>
 
         <NowPlaying />
+
+        {/* Research Section */}
+        <section className="mb-16">
+          <h2 className="mb-6 text-sm font-normal">{profileData.research.title}</h2>
+          <div className="space-y-4">
+            {profileData.research.items.map((item) => (
+              <article
+                key={item.url}
+                className="rounded-xl border border-neutral-800 bg-neutral-950 p-5 transition-colors hover:border-neutral-700"
+              >
+                <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-500">
+                  <span>{item.type}</span>
+                  <span aria-hidden="true">/</span>
+                  <span>{item.date}</span>
+                </div>
+                <h3 className="mt-4 max-w-2xl text-base leading-7 font-normal text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-400">
+                  {item.description}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-neutral-800 pt-4 text-xs text-neutral-500">
+                  {item.metrics.map((metric) => (
+                    <span key={metric}>{metric}</span>
+                  ))}
+                </div>
+                <div className="mt-5 flex flex-wrap gap-4">
+                  <Link
+                    href={item.url}
+                    className="inline-flex items-center gap-1 text-sm text-white transition-colors hover:text-neutral-300"
+                  >
+                    Read the study
+                    <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                  </Link>
+                  <a
+                    href={item.doiUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-neutral-400 transition-colors hover:text-white"
+                  >
+                    DOI record
+                    <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
         {/* Experience Section */}
         <section className="mb-16">

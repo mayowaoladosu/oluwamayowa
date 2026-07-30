@@ -6,8 +6,29 @@ import profileData from '@/data/profile.json'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: profileData.header.name,
+  metadataBase: new URL('https://oluwamayowa.vercel.app'),
+  title: {
+    default: profileData.header.name,
+    template: `%s | ${profileData.header.name}`,
+  },
   description: profileData.about.description,
+  authors: [{ name: 'Mayowa Oladosu', url: 'https://oluwamayowa.vercel.app' }],
+  creator: 'Mayowa Oladosu',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    title: profileData.header.name,
+    description: profileData.about.description,
+    siteName: profileData.header.name,
+  },
+  twitter: {
+    card: 'summary',
+    title: profileData.header.name,
+    description: profileData.about.description,
+  },
   icons: {
     icon: [
       {

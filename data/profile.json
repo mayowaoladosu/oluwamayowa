@@ -11,6 +11,20 @@
     "title": "About",
     "description": "Founder and software engineer building cloud infrastructure, hosting systems, and web platforms."
   },
+  "research": {
+    "title": "Research",
+    "items": [
+      {
+        "date": "July 2026",
+        "type": "Technical report",
+        "title": "Behavior Strength and Deployment Readiness Across Six Frontier-Model Deployments",
+        "url": "/research/frontier-model-deployment-study",
+        "doiUrl": "https://doi.org/10.5281/zenodo.21707500",
+        "description": "A first-party observational study of 1,044 target calls across six frontier-model deployments, separating answer behavior from reliable delivery.",
+        "metrics": ["1,044 calls", "6 deployments", "9 dimensions"]
+      }
+    ]
+  },
   "experience": {
     "title": "Experience",
     "items": [
