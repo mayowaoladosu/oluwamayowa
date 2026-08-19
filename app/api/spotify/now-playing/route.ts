@@ -6,14 +6,19 @@ const NOW_PLAYING_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-pla
 type SpotifyNowPlaying = {
   is_playing: boolean
   currently_playing_type: string
+  progress_ms: number | null
   item: {
+    id: string
     name: string
+    duration_ms: number
     external_urls: { spotify: string }
     artists: Array<{ name: string }>
-    album: { images: Array<{ url: string }> }
+    album: {
+      name: string
+      images: Array<{ url: string }>
+    }
   } | null
 }
-
 
 async function getAccessToken() {
   const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN
@@ -93,14 +98,26 @@ export async function GET() {
       return NextResponse.json({ isPlaying: false }, { status: 200 })
     }
 
+    const playbackCapturedAt = Date.now()
     const artist = song.item.artists.map((item) => item.name).join(", ")
+    const primaryArtist = song.item.artists[0]?.name ?? artist
+    const responseCreatedAt = Date.now()
+    const progressMs = Math.min(
+      song.item.duration_ms,
+      (song.progress_ms ?? 0) + (responseCreatedAt - playbackCapturedAt),
+    )
 
     return NextResponse.json({
       isPlaying: true,
+      trackId: song.item.id,
       title: song.item.name,
       artist,
+      primaryArtist,
+      album: song.item.album.name,
       songUrl: song.item.external_urls.spotify,
       albumArtUrl: song.item.album.images[0]?.url ?? null,
+      durationMs: song.item.duration_ms,
+      progressMs,
     })
   } catch {
     clearTimeout(timeoutId)
