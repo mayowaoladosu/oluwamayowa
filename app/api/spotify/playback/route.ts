@@ -98,7 +98,7 @@ function checkInProcessRateLimit(clientKey: string) {
   return null
 }
 
-async function checkDistributedRateLimit(request: NextRequest) {
+async function checkDistributedRateLimit() {
   const firewallHost = process.env.SPOTIFY_FIREWALL_HOST
 
   if (process.env.VERCEL !== "1" || !firewallHost) {
@@ -106,16 +106,14 @@ async function checkDistributedRateLimit(request: NextRequest) {
   }
 
   let timeoutId: ReturnType<typeof setTimeout> | undefined
-  const firewallHeaders = new Headers(request.headers)
   // Deployment-specific Vercel URLs can redirect through deployment
   // protection. The stable project hostname reaches the WAF endpoint
   // directly and also avoids routing the check back through Cloudflare.
-  firewallHeaders.set("host", firewallHost)
 
   try {
     const result = await Promise.race([
       checkVercelRateLimit(DISTRIBUTED_RATE_LIMIT_ID, {
-        headers: firewallHeaders,
+        headers: { host: firewallHost },
         rateLimitKey: DISTRIBUTED_RATE_LIMIT_KEY,
       }),
       new Promise<null>((resolve) => {
@@ -185,7 +183,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request origin." }, { status: 403 })
   }
 
-  const distributedRetryAfterMs = await checkDistributedRateLimit(request)
+  const distributedRetryAfterMs = await checkDistributedRateLimit()
 
   if (distributedRetryAfterMs !== null) {
     return rateLimitResponse(distributedRetryAfterMs)
