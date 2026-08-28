@@ -99,16 +99,20 @@ function checkInProcessRateLimit(clientKey: string) {
 }
 
 async function checkDistributedRateLimit(request: NextRequest) {
-  if (process.env.VERCEL !== "1") {
+  const vercelHost = process.env.VERCEL_URL
+
+  if (process.env.VERCEL !== "1" || !vercelHost) {
     return null
   }
 
   let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const firewallHeaders = new Headers(request.headers)
+  firewallHeaders.set("host", vercelHost)
 
   try {
     const result = await Promise.race([
       checkVercelRateLimit(DISTRIBUTED_RATE_LIMIT_ID, {
-        request,
+        headers: firewallHeaders,
         rateLimitKey: DISTRIBUTED_RATE_LIMIT_KEY,
       }),
       new Promise<null>((resolve) => {
