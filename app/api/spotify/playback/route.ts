@@ -1,3 +1,4 @@
+import { checkRateLimit as checkVercelRateLimit } from "@vercel/firewall"
 import { type NextRequest, NextResponse } from "next/server"
 import { spotifyApiRequest } from "@/lib/spotify"
 
@@ -6,6 +7,9 @@ const CLIENT_REQUEST_LIMIT = 5
 const GLOBAL_WINDOW_MS = 60_000
 const GLOBAL_REQUEST_LIMIT = 30
 const MAX_CLIENTS = 1000
+const DISTRIBUTED_RATE_LIMIT_ID = "spotify-playback-global"
+const DISTRIBUTED_RATE_LIMIT_KEY = "spotify-playback"
+const DISTRIBUTED_RATE_LIMIT_TIMEOUT_MS = 1500
 
 const playbackActions = {
   previous: { method: "POST", path: "/v1/me/player/previous" },
@@ -24,9 +28,8 @@ type RequestWindow = {
 const clientWindows = new Map<string, RequestWindow>()
 let globalWindow: RequestWindow = { count: 0, startedAt: 0 }
 
-// These counters are a first line of defense for local and single-instance
-// deployments. A scaled deployment should also rate-limit this route at the
-// hosting edge so every function instance shares the same visitor budget.
+// These bounded counters remain as a local fallback when the shared Vercel
+// Firewall check is unavailable or the app is running outside Vercel.
 
 function isPlaybackAction(value: unknown): value is PlaybackAction {
   return typeof value === "string" && Object.hasOwn(playbackActions, value)
@@ -64,7 +67,7 @@ function consumeRequestWindow(
   return { allowed: true as const, window }
 }
 
-function checkRateLimit(clientKey: string) {
+function checkInProcessRateLimit(clientKey: string) {
   const clientResult = consumeRequestWindow(
     clientWindows.get(clientKey),
     CLIENT_WINDOW_MS,
@@ -93,6 +96,49 @@ function checkRateLimit(clientKey: string) {
   }
 
   return null
+}
+
+async function checkDistributedRateLimit(request: NextRequest) {
+  if (process.env.VERCEL !== "1") {
+    return null
+  }
+
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  try {
+    const result = await Promise.race([
+      checkVercelRateLimit(DISTRIBUTED_RATE_LIMIT_ID, {
+        request,
+        rateLimitKey: DISTRIBUTED_RATE_LIMIT_KEY,
+      }),
+      new Promise<null>((resolve) => {
+        timeoutId = setTimeout(() => resolve(null), DISTRIBUTED_RATE_LIMIT_TIMEOUT_MS)
+      }),
+    ])
+
+    return result?.rateLimited ? CLIENT_WINDOW_MS : null
+  } catch {
+    // The bounded in-process limiter remains available if Vercel's edge check
+    // is temporarily unreachable or when running outside Vercel.
+    return null
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+  }
+}
+
+function rateLimitResponse(retryAfterMs: number) {
+  return NextResponse.json(
+    {
+      error: "Too many controls at once. Please wait a moment.",
+      retryAfterMs,
+    },
+    {
+      status: 429,
+      headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) },
+    },
+  )
 }
 
 function isSameOrigin(request: NextRequest) {
@@ -132,6 +178,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request origin." }, { status: 403 })
   }
 
+  const distributedRetryAfterMs = await checkDistributedRateLimit(request)
+
+  if (distributedRetryAfterMs !== null) {
+    return rateLimitResponse(distributedRetryAfterMs)
+  }
+
+  const retryAfterMs = checkInProcessRateLimit(getClientKey(request))
+
+  if (retryAfterMs !== null) {
+    return rateLimitResponse(retryAfterMs)
+  }
+
   let action: unknown
 
   try {
@@ -143,21 +201,6 @@ export async function POST(request: NextRequest) {
 
   if (!isPlaybackAction(action)) {
     return NextResponse.json({ error: "Unknown playback action." }, { status: 400 })
-  }
-
-  const retryAfterMs = checkRateLimit(getClientKey(request))
-
-  if (retryAfterMs !== null) {
-    return NextResponse.json(
-      {
-        error: "Too many controls at once. Please wait a moment.",
-        retryAfterMs,
-      },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) },
-      },
-    )
   }
 
   const control = playbackActions[action]
