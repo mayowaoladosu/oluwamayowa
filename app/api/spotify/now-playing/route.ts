@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
-
-const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token"
-const NOW_PLAYING_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing"
+import { spotifyApiRequest } from "@/lib/spotify"
 
 type SpotifyNowPlaying = {
   is_playing: boolean
@@ -20,82 +18,26 @@ type SpotifyNowPlaying = {
   } | null
 }
 
-async function getAccessToken() {
-  const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN
-  const clientId = process.env.SPOTIFY_CLIENT_ID
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
-
-  if (!refreshToken || !clientId || !clientSecret) {
-    return null
-  }
-
-  const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
-
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 5000)
-
-  try {
-    const response = await fetch(TOKEN_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${basic}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-      }),
-      cache: "no-store",
-      signal: controller.signal,
-    })
-
-    clearTimeout(timeoutId)
-
-    if (!response.ok) {
-      return null
-    }
-
-    const data = await response.json()
-    return data.access_token as string
-  } catch {
-    clearTimeout(timeoutId)
-    return null
-  }
+function noCurrentTrackResponse() {
+  return NextResponse.json({ hasTrack: false, isPlaying: false }, { status: 200 })
 }
 
 export async function GET() {
-  const accessToken = await getAccessToken()
-
-  if (!accessToken) {
-    return NextResponse.json({ isPlaying: false }, { status: 200 })
-  }
-
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 5000)
-
   try {
-    const response = await fetch(NOW_PLAYING_ENDPOINT, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      cache: "no-store",
-      signal: controller.signal,
-    })
+    const response = await spotifyApiRequest("/v1/me/player/currently-playing")
 
-    clearTimeout(timeoutId)
-
-    if (response.status === 204 || response.status >= 400) {
-      return NextResponse.json({ isPlaying: false }, { status: 200 })
+    if (!response || response.status === 204 || response.status >= 400) {
+      return noCurrentTrackResponse()
     }
 
     const song = (await response.json()) as SpotifyNowPlaying
 
-    if (!song.is_playing || !song.item) {
-      return NextResponse.json({ isPlaying: false }, { status: 200 })
+    if (!song.item) {
+      return noCurrentTrackResponse()
     }
 
     if (song.currently_playing_type !== "track") {
-      return NextResponse.json({ isPlaying: false }, { status: 200 })
+      return noCurrentTrackResponse()
     }
 
     const playbackCapturedAt = Date.now()
@@ -104,11 +46,12 @@ export async function GET() {
     const responseCreatedAt = Date.now()
     const progressMs = Math.min(
       song.item.duration_ms,
-      (song.progress_ms ?? 0) + (responseCreatedAt - playbackCapturedAt),
+      (song.progress_ms ?? 0) + (song.is_playing ? responseCreatedAt - playbackCapturedAt : 0),
     )
 
     return NextResponse.json({
-      isPlaying: true,
+      hasTrack: true,
+      isPlaying: song.is_playing,
       trackId: song.item.id,
       title: song.item.name,
       artist,
@@ -120,7 +63,6 @@ export async function GET() {
       progressMs,
     })
   } catch {
-    clearTimeout(timeoutId)
-    return NextResponse.json({ isPlaying: false }, { status: 200 })
+    return noCurrentTrackResponse()
   }
 }
