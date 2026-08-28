@@ -99,15 +99,18 @@ function checkInProcessRateLimit(clientKey: string) {
 }
 
 async function checkDistributedRateLimit(request: NextRequest) {
-  const vercelHost = process.env.VERCEL_URL
+  const firewallHost = process.env.SPOTIFY_FIREWALL_HOST
 
-  if (process.env.VERCEL !== "1" || !vercelHost) {
+  if (process.env.VERCEL !== "1" || !firewallHost) {
     return null
   }
 
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const firewallHeaders = new Headers(request.headers)
-  firewallHeaders.set("host", vercelHost)
+  // Deployment-specific Vercel URLs can redirect through deployment
+  // protection. The stable project hostname reaches the WAF endpoint
+  // directly and also avoids routing the check back through Cloudflare.
+  firewallHeaders.set("host", firewallHost)
 
   try {
     const result = await Promise.race([
