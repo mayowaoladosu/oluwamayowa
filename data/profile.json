@@ -29,6 +29,18 @@
     "title": "Experience",
     "items": [
       {
+        "period": "Sep 2026 - Present",
+        "title": "Founder & Software Engineer, Openstead",
+        "url": "https://openstead.tech",
+        "description": "Building Openstead, a managed cloud platform for deploying and operating web apps, APIs, static sites, databases, background workers, and scheduled jobs directly from GitHub. Managed by Semmat, Inc."
+      },
+      {
+        "period": "Aug 2026 - Present",
+        "title": "Co-founder & CTO, GidStack",
+        "url": "https://gidstack.com",
+        "description": "Co-founded and leading engineering at GidStack, a platform of creator and business tools for independent professionals, including online storefronts, link-in-bio pages, invoicing, payments, and bookings."
+      },
+      {
         "period": "Apr 2026 - Present",
         "title": "Founder, LayerRail",
         "url": "https://layerrail.com",
@@ -61,6 +73,18 @@
   "projects": {
     "title": "Projects",
     "items": [
+      {
+        "status": "Live",
+        "title": "Openstead",
+        "url": "https://openstead.tech",
+        "description": "Managed app hosting and databases platform that deploys web apps, APIs, static sites, databases, and background workers from GitHub."
+      },
+      {
+        "status": "Live",
+        "title": "GidStack",
+        "url": "https://gidstack.com",
+        "description": "Creator and business tools platform with online storefronts, link-in-bio pages, invoicing, payments, and bookings for independent professionals."
+      },
       {
         "status": "Open Source",
         "title": "LayerRail",
